@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <RunConfiguration>
+    <ResultsDirectory>.\TestResults</ResultsDirectory>
+  </RunConfiguration>
+
+  <!-- Default browser for `dotnet test`/Test Explorer runs. To run the same suite against
+       Firefox instead, pass TestProject1/firefox.runsettings (see that file) via
+       "dotnet test /settings:firefox.runsettings" or the Test Explorer settings picker. -->
+  <Playwright>
+    <BrowserName>chromium</BrowserName>
+    <!-- Set Headless to true (or delete this file) for CI / headless environments, e.g.
+         Azure Pipelines' Microsoft-hosted agents in azure-pipelines.yml. -->
+    <LaunchOptions>
+      <Headless>false</Headless>
+    </LaunchOptions>
+  </Playwright>
+
+  <!-- Generates an interactive HTML test report under TestResults/ on every `dotnet test` run. -->
+  <LoggerRunSettings>
+    <Loggers>
+      <Logger friendlyName="html" enabled="True">
+        <Configuration>
+          <LogFileName>test-report.html</LogFileName>
+        </Configuration>
+      </Logger>
+    </Loggers>
+  </LoggerRunSettings>
+</RunSettings>

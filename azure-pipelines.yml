@@ -1,0 +1,50 @@
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  # Create this variable group in Azure DevOps: Pipelines > Library > Variable groups.
+  # Add these as SECRET variables (click the lock icon) with these exact names:
+  #   SAUCE_STANDARD_USERNAME, SAUCE_LOCKED_OUT_USERNAME, SAUCE_PASSWORD
+  # (same names as .env.example, so local and CI stay in sync).
+  - group: sauce-demo-credentials
+
+steps:
+  - task: UseDotNet@2
+    displayName: 'Use .NET SDK 10.x'
+    inputs:
+      packageType: sdk
+      version: '10.0.x'
+
+  - script: dotnet restore
+    displayName: 'Restore dependencies'
+    workingDirectory: TestProject1
+
+  - script: dotnet build --configuration Release --no-restore
+    displayName: 'Build'
+    workingDirectory: TestProject1
+
+  - script: pwsh bin/Release/net10.0/playwright.ps1 install --with-deps
+    displayName: 'Install Playwright browsers'
+    workingDirectory: TestProject1
+
+  # -- Playwright.LaunchOptions.Headless=true overrides TestProject1/.runsettings (which defaults to
+  # headed for local dev convenience) so CI always runs headless regardless of that local default.
+  - script: dotnet test --configuration Release --no-build --logger trx --results-directory "$(Agent.TempDirectory)/TestResults" -- Playwright.LaunchOptions.Headless=true
+    displayName: 'Run Playwright/NUnit tests'
+    workingDirectory: TestProject1
+    env:
+      SAUCE_STANDARD_USERNAME: $(SAUCE_STANDARD_USERNAME)
+      SAUCE_LOCKED_OUT_USERNAME: $(SAUCE_LOCKED_OUT_USERNAME)
+      SAUCE_PASSWORD: $(SAUCE_PASSWORD)
+
+  - task: PublishTestResults@2
+    displayName: 'Publish test results'
+    condition: succeededOrFailed()
+    inputs:
+      testResultsFormat: VSTest
+      testResultsFiles: '$(Agent.TempDirectory)/TestResults/*.trx'

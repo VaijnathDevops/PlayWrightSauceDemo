@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <RunConfiguration>
+	<ResultsDirectory>.\TestResults</ResultsDirectory>
+  </RunConfiguration>
+
+  <!-- Run the same suite against Firefox: "dotnet test /settings:firefox.runsettings" -->
+  <Playwright>
+	<BrowserName>firefox</BrowserName>
+	<LaunchOptions>
+	  <Headless>false</Headless>
+	</LaunchOptions>
+  </Playwright>
+
+  <!-- Generates an interactive HTML test report under TestResults/ on every `dotnet test` run. -->
+  <LoggerRunSettings>
+	<Loggers>
+	  <Logger friendlyName="html" enabled="True">
+		<Configuration>
+		  <LogFileName>test-report-firefox.html</LogFileName>
+		</Configuration>
+	  </Logger>
+	</Loggers>
+  </LoggerRunSettings>
+</RunSettings>
