@@ -1,11 +1,11 @@
 # Project Conventions & Patterns
 
-Coding standards and architectural patterns for **PlayWrightSauceDemo** (`TestProject1`). These supplement the root `CLAUDE.md` guidelines.
+Coding standards and architectural patterns for **PlayWrightSauceDemo** (`SauceAppTests`). These supplement the root `CLAUDE.md` guidelines.
 
 ## Directory Layout
 
 ```
-TestProject1/
+SauceAppTests/
 ├── Pages/                  # Page Object classes (one per page/component)
 │   ├── LoginPage.cs
 │   ├── InventoryPage.cs
@@ -18,15 +18,15 @@ TestProject1/
 └── UnitTest1.cs            # Original scaffold sample — do not add tests here
 ```
 
-`TestCases/` lives at the repo root, outside `TestProject1/`.
+`TestCases/` lives at the repo root, outside `SauceAppTests/`.
 
 ## Page Object Pattern
 
 ```csharp
-// TestProject1/Pages/LoginPage.cs
+// SauceAppTests/Pages/LoginPage.cs
 using Microsoft.Playwright;
 
-namespace TestProject1.Pages
+namespace SauceAppTests.Pages
 {
 	public class LoginPage(IPage page)
 	{
@@ -62,12 +62,12 @@ namespace TestProject1.Pages
 ## Test Fixture Pattern
 
 ```csharp
-// TestProject1/Tests/LoginTests.cs
+// SauceAppTests/Tests/LoginTests.cs
 using Microsoft.Playwright.NUnit;
 using NUnit.Framework;
-using TestProject1.Pages;
+using SauceAppTests.Pages;
 
-namespace TestProject1
+namespace SauceAppTests
 {
 	[TestFixture]
 	public class LoginTests : PageTest

@@ -5,7 +5,7 @@
   </RunConfiguration>
 
   <!-- Default browser for `dotnet test`/Test Explorer runs. To run the same suite against
-       Firefox instead, pass TestProject1/firefox.runsettings (see that file) via
+       Firefox instead, pass SauceAppTests/firefox.runsettings (see that file) via
        "dotnet test /settings:firefox.runsettings" or the Test Explorer settings picker. -->
   <Playwright>
     <BrowserName>chromium</BrowserName>

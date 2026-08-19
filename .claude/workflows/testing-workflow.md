@@ -15,8 +15,8 @@ End-to-end flow for turning a test requirement into a passing automated Playwrig
               ▼
  ┌───────────────────────────┐
  │ /automate-tests           │   agent: playwright-automation-engineer
- │ skill: playwright-         │   → TestProject1/Pages/*.cs
- │        automation-        │     TestProject1/Tests/*.cs
+ │ skill: playwright-         │   → SauceAppTests/Pages/*.cs
+ │        automation-        │     SauceAppTests/Tests/*.cs
  │        generator           │   (builds + runs once, reports status)
  └────────────┬──────────────┘
               │
@@ -52,7 +52,7 @@ End-to-end flow for turning a test requirement into a passing automated Playwrig
 
 ## Traceability
 
-Every manual test case ID (`TC-<FEATURE>-<NUM>`) written by `qa-test-designer` should end up referenced in a `[Description("TC-...")]` on the `[Test]` method that automates it, so coverage can be audited by grepping for the ID in both `TestCases/` and `TestProject1/Tests/`.
+Every manual test case ID (`TC-<FEATURE>-<NUM>`) written by `qa-test-designer` should end up referenced in a `[Description("TC-...")]` on the `[Test]` method that automates it, so coverage can be audited by grepping for the ID in both `TestCases/` and `SauceAppTests/Tests/`.
 
 ## Guardrails
 

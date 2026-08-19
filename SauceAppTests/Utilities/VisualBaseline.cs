@@ -2,7 +2,7 @@ using Microsoft.Playwright;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
-namespace TestProject1.Utilities
+namespace SauceAppTests.Utilities
 {
     /// <summary>
     /// Custom visual-regression baseline comparison, used by TC-NFR-001.
@@ -14,11 +14,11 @@ namespace TestProject1.Utilities
     /// captured during automation; the JS/TS Playwright binding's page.toHaveScreenshot() was not
     /// ported to this version of the .NET binding). This class instead implements an equivalent
     /// pixel-diff comparison using SixLabors.ImageSharp (already a project dependency) against a
-    /// baseline PNG committed under TestProject1/Baselines/.
+    /// baseline PNG committed under SauceAppTests/Baselines/.
     /// </summary>
     public static class VisualBaseline
     {
-        // Test host runs from TestProject1/bin/Debug/net10.0 - three levels up is TestProject1/.
+        // Test host runs from SauceAppTests/bin/Debug/net10.0 - three levels up is SauceAppTests/.
         private static string BaselineDirectory =>
             Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "Baselines");
 
@@ -27,7 +27,7 @@ namespace TestProject1.Utilities
 
         /// <summary>
         /// Captures a full-page screenshot of <paramref name="page"/> and compares it against the
-        /// committed baseline PNG named <paramref name="baselineFileName"/> under TestProject1/Baselines/.
+        /// committed baseline PNG named <paramref name="baselineFileName"/> under SauceAppTests/Baselines/.
         /// If no baseline exists yet, this call establishes one from the current screenshot (the
         /// comparison below still runs, trivially, against the file just written) and logs a note
         /// via TestContext - commit the resulting file and rerun to get a real comparison.

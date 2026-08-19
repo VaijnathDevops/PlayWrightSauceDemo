@@ -38,7 +38,7 @@ Numbers are zero-padded to three digits: `TC-LOGIN-001`, `TC-LOGIN-002`, …
 
 ## Traceability
 
-Every `[Test]` method in `TestProject1/Tests/` must carry a `[Description("TC-...")]` attribute referencing the manual test case ID it implements.
+Every `[Test]` method in `SauceAppTests/Tests/` must carry a `[Description("TC-...")]` attribute referencing the manual test case ID it implements.
 
 To audit coverage:
 
@@ -47,7 +47,7 @@ To audit coverage:
 Select-String -Path TestCases\*.md -Pattern "TC-[A-Z]+-\d{3}"
 
 # Find all automated TC IDs
-Select-String -Path TestProject1\Tests\*.cs -Pattern "TC-[A-Z]+-\d{3}"
+Select-String -Path SauceAppTests\Tests\*.cs -Pattern "TC-[A-Z]+-\d{3}"
 ```
 
 IDs that appear in `TestCases/` but not in `Tests/` are **not yet automated**.

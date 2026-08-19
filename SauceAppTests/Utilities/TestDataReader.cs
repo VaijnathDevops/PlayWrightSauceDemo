@@ -1,19 +1,19 @@
-namespace TestProject1.Utilities
+namespace SauceAppTests.Utilities
 {
     /// <summary>
     /// Minimal CSV lookup reader for simple, comma-separated, no-quoting-required TestData files
-    /// (see TestProject1/TestData/*.csv). Rows are keyed by their first column so tests can look
+    /// (see SauceAppTests/TestData/*.csv). Rows are keyed by their first column so tests can look
     /// up a named record (e.g. "Default" customer, "First"/"Second" product) instead of hardcoding
     /// values inline.
     /// </summary>
     public static class TestDataReader
     {
-        // Test host runs from TestProject1/bin/Debug/net10.0 - three levels up is TestProject1/.
+        // Test host runs from SauceAppTests/bin/Debug/net10.0 - three levels up is SauceAppTests/.
         private static string TestDataDirectory =>
             Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
 
         /// <summary>
-        /// Reads <paramref name="fileName"/> from TestProject1/TestData/ and returns the row whose
+        /// Reads <paramref name="fileName"/> from SauceAppTests/TestData/ and returns the row whose
         /// first column equals <paramref name="key"/>, as a column-name -> value map (header-driven).
         /// </summary>
         public static IReadOnlyDictionary<string, string> GetRow(string fileName, string key)

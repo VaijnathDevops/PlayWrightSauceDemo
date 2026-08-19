@@ -13,13 +13,13 @@ Initializes or validates the C# Playwright/NUnit project structure with multi-br
 
 ```powershell
 # Check what already exists
-Get-ChildItem TestProject1/ -Recurse | Select-Object FullName
+Get-ChildItem SauceAppTests/ -Recurse | Select-Object FullName
 ```
 
-- Read `TestProject1/TestProject1.csproj` — confirm package versions and target framework.
+- Read `SauceAppTests/SauceAppTests.csproj` — confirm package versions and target framework.
 - Check for existing `Pages/`, `Tests/`, `Helpers/`, `TestData/` folders.
 - Check for a `.runsettings` or `NUnit.runsettings` file at repo root.
-- Check for `TestProject1/TestSettings.cs`, repo-root `.env.example`, `.env`, `.gitignore`, and `azure-pipelines.yml` — these are the credential-handling and CI pieces this skill also owns (steps 5b/5c).
+- Check for `SauceAppTests/TestSettings.cs`, repo-root `.env.example`, `.env`, `.gitignore`, and `azure-pipelines.yml` — these are the credential-handling and CI pieces this skill also owns (steps 5b/5c).
 - **Do not overwrite files that already exist and are correct** — extend, don't replace. Never overwrite an existing `.env` (it may hold a developer's real local values).
 
 ### 2. Validate / fix the `.csproj`
@@ -36,7 +36,7 @@ Run `dotnet restore` after any `.csproj` change.
 ### 3. Ensure browser binaries are installed
 
 ```powershell
-# From TestProject1/ after build
+# From SauceAppTests/ after build
 $env:PLAYWRIGHT_BROWSERS_PATH = "0"
 dotnet build
 pwsh bin/Debug/net10.0/playwright.ps1 install chromium firefox
@@ -47,7 +47,7 @@ Confirm both `chromium` and `firefox` are installed. The skill targets **Chromiu
 ### 4. Create the folder structure (only if missing)
 
 ```
-TestProject1/
+SauceAppTests/
 ├── Pages/           # Page Object classes — one file per page/component
 ├── Tests/           # NUnit test fixtures — one file per feature
 ├── Helpers/         # Shared utilities: constants, base helpers, extensions
@@ -66,7 +66,7 @@ Create a `README.md` placeholder in each empty folder explaining its purpose so 
 **Non-sensitive constants only** — base URL and page paths. Credentials never go here, not even SauceDemo's public demo values; see step 5b.
 
 ```csharp
-namespace TestProject1.Helpers
+namespace SauceAppTests.Helpers
 {
 	public static class SauceDemoConstants
 	{
@@ -87,17 +87,17 @@ namespace TestProject1.Helpers
 
 ### 5b. Create / validate credential loading (`TestSettings.cs`, `.env.example`, `.gitignore`)
 
-Credentials (usernames, passwords) are never constants — they're read from environment variables via `TestProject1/TestSettings.cs`, backed by `.env` locally / Azure Pipelines secret variables in CI (see CLAUDE.md's "Credentials & Sensitive Data" section, and step 5c for the CI side). If any of the following are missing, create them — don't just flag the gap:
+Credentials (usernames, passwords) are never constants — they're read from environment variables via `SauceAppTests/TestSettings.cs`, backed by `.env` locally / Azure Pipelines secret variables in CI (see CLAUDE.md's "Credentials & Sensitive Data" section, and step 5c for the CI side). If any of the following are missing, create them — don't just flag the gap:
 
 1. Add the `DotNetEnv` package. Resolve the real current version via the CLI rather than guessing one — if this repo also has a private/internal NuGet feed configured (check with `dotnet nuget list source`), pin explicitly to nuget.org so an unrelated private-feed auth failure doesn't block the install:
    ```powershell
-   cd TestProject1
+   cd SauceAppTests
    dotnet add package DotNetEnv --source https://api.nuget.org/v3/index.json
    ```
 
-2. Create `TestProject1/TestSettings.cs` (adjust the property names/env var names to whatever credentials this feature set actually needs — these three are SauceDemo's baseline):
+2. Create `SauceAppTests/TestSettings.cs` (adjust the property names/env var names to whatever credentials this feature set actually needs — these three are SauceDemo's baseline):
    ```csharp
-   namespace TestProject1
+   namespace SauceAppTests
    {
        public static class TestSettings
        {
@@ -166,19 +166,19 @@ steps:
 
   - script: dotnet restore
     displayName: 'Restore dependencies'
-    workingDirectory: TestProject1
+    workingDirectory: SauceAppTests
 
   - script: dotnet build --configuration Release --no-restore
     displayName: 'Build'
-    workingDirectory: TestProject1
+    workingDirectory: SauceAppTests
 
   - script: pwsh bin/Release/net10.0/playwright.ps1 install --with-deps
     displayName: 'Install Playwright browsers'
-    workingDirectory: TestProject1
+    workingDirectory: SauceAppTests
 
   - script: dotnet test --configuration Release --no-build --logger trx --results-directory "$(Agent.TempDirectory)/TestResults"
     displayName: 'Run Playwright/NUnit tests'
-    workingDirectory: TestProject1
+    workingDirectory: SauceAppTests
     env:
       SAUCE_STANDARD_USERNAME: $(SAUCE_STANDARD_USERNAME)
       SAUCE_LOCKED_OUT_USERNAME: $(SAUCE_LOCKED_OUT_USERNAME)
@@ -198,7 +198,7 @@ Notes:
 
 ### 6. Create / validate `.runsettings` for multi-browser runs
 
-Create `TestProject1/playwright.runsettings` (or repo-root `playwright.runsettings`):
+Create `SauceAppTests/playwright.runsettings` (or repo-root `playwright.runsettings`):
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -223,14 +223,14 @@ Create `TestProject1/playwright.runsettings` (or repo-root `playwright.runsettin
 
 ```powershell
 # Chromium (default)
-dotnet test TestProject1/ --settings TestProject1/playwright.runsettings
+dotnet test SauceAppTests/ --settings SauceAppTests/playwright.runsettings
 
 # Firefox
-dotnet test TestProject1/ --settings TestProject1/playwright.runsettings -- TestRunParameters.Parameter(name="browser",value="firefox")
+dotnet test SauceAppTests/ --settings SauceAppTests/playwright.runsettings -- TestRunParameters.Parameter(name="browser",value="firefox")
 
 # Both in one script (sequential)
 foreach ($b in @("chromium","firefox")) {
-	dotnet test TestProject1/ --settings TestProject1/playwright.runsettings `
+	dotnet test SauceAppTests/ --settings SauceAppTests/playwright.runsettings `
 		-- "TestRunParameters.Parameter(name=`"browser`",value=`"$b`")"
 }
 ```
@@ -253,7 +253,7 @@ All test fixtures inherit `PlaywrightFixture` (not `PageTest` directly).
 ### 8. Build and verify
 
 ```powershell
-cd TestProject1
+cd SauceAppTests
 dotnet build
 dotnet test --list-tests
 ```
@@ -268,7 +268,7 @@ Summarise what was created, what already existed (and was left unchanged), and h
 
 ## Anti-hallucination
 
-- Do not invent package versions — read `TestProject1.csproj` for what is actually installed, and let `dotnet add package` resolve `DotNetEnv`'s version rather than hardcoding one.
+- Do not invent package versions — read `SauceAppTests.csproj` for what is actually installed, and let `dotnet add package` resolve `DotNetEnv`'s version rather than hardcoding one.
 - Do not claim the build passes without running `dotnet build`.
 - Do not claim browsers are installed without running `playwright.ps1 install` or confirming the output.
 - Do not claim CI "is set up" — the YAML file existing is not the same as the pipeline being able to pass; the Azure DevOps variable group is a manual step this skill cannot perform, so say so.

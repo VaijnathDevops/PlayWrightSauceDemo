@@ -1,8 +1,8 @@
 using Microsoft.Playwright;
-using TestProject1.Common;
-using TestProject1.Pages;
+using SauceAppTests.Common;
+using SauceAppTests.Pages;
 
-namespace TestProject1
+namespace SauceAppTests
 {
     /// <summary>
     /// Automates TestCases/Login.md (TC-LOGIN-001 through 008) and TestCases/Logout.md
@@ -38,7 +38,7 @@ namespace TestProject1
             await _loginPage.GotoAsync();
         }
 
-        // Screenshot-on-failure is provided by the shared TestProject1.Common.PlaywrightTestBase
+        // Screenshot-on-failure is provided by the shared SauceAppTests.Common.PlaywrightTestBase
         // [TearDown], so it doesn't need to be duplicated here.
 
         // -----------------------------------------------------------------------------------------

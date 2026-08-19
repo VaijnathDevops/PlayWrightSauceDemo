@@ -6,7 +6,7 @@ Use the `framework-setup-engineer` agent to set up or validate the Playwright/NU
 
 The agent will:
 1. Audit the existing project structure (never overwrites correct files)
-2. Validate / fix `TestProject1.csproj` package references
+2. Validate / fix `SauceAppTests.csproj` package references
 3. Install Chromium + Firefox browser binaries via `playwright.ps1 install`
 4. Create missing folders: `Pages/`, `Tests/`, `Helpers/`, `TestData/`
 5. Create `Helpers/SauceDemoConstants.cs` with non-sensitive shared constants (base URL, page paths — never credentials)

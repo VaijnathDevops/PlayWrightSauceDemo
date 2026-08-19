@@ -11,12 +11,12 @@ Follow the detailed procedure in the `framework-setup` skill (`.claude/skills/fr
 
 Core responsibilities:
 
-1. **Audit before touching anything.** Read `TestProject1/TestProject1.csproj`, glob the folder structure, and identify what is missing versus what already exists. Never overwrite files that are already correct.
+1. **Audit before touching anything.** Read `SauceAppTests/SauceAppTests.csproj`, glob the folder structure, and identify what is missing versus what already exists. Never overwrite files that are already correct.
 2. **Validate package versions.** The repo uses `Microsoft.Playwright.NUnit` 1.52.0, `NUnit` 4.3.2, `.NET 10`. Do not change versions unless the user explicitly asks.
 3. **Install browser binaries.** After build, run `playwright.ps1 install chromium firefox` to ensure both required browsers are available. Confirm the install output — don't assume they're present.
 4. **Create the folder structure** (`Pages/`, `Tests/`, `Helpers/`, `TestData/`) only for folders that are missing. Add a `README.md` placeholder in each empty folder.
 5. **Create `Helpers/SauceDemoConstants.cs`** with base URL and page URL constants only — never credentials, not even SauceDemo's public demo values (see CLAUDE.md's "Credentials & Sensitive Data" section).
-6. **Set up credential loading**: `TestProject1/TestSettings.cs` (env-var-backed, via the `DotNetEnv` package), repo-root `.env.example` (committed template) and `.env` (git-ignored, only if it doesn't already exist), and `.gitignore` entries for `.env`/`bin/`/`obj/`/`.vs/`. Never invent the `DotNetEnv` version — resolve it with `dotnet add package DotNetEnv`.
+6. **Set up credential loading**: `SauceAppTests/TestSettings.cs` (env-var-backed, via the `DotNetEnv` package), repo-root `.env.example` (committed template) and `.env` (git-ignored, only if it doesn't already exist), and `.gitignore` entries for `.env`/`bin/`/`obj/`/`.vs/`. Never invent the `DotNetEnv` version — resolve it with `dotnet add package DotNetEnv`.
 7. **Create `azure-pipelines.yml`** at repo root (Azure DevOps CI: restore, build, install Playwright browsers, `dotnet test`, publish TRX results) with credentials sourced from a `sauce-demo-credentials` variable group mapped to the same env var names as `.env.example`. Creating the variable group itself in Azure DevOps is a manual step you cannot perform — say so explicitly rather than implying CI is fully wired up.
 8. **Create `playwright.runsettings`** with multi-browser support, timeout defaults, screenshot-on-failure, and trace-on-failure. Show the user the exact `dotnet test` commands to run against Chromium and Firefox.
 9. **Create `Helpers/PlaywrightFixture.cs`** as the shared base class (extends `PageTest`) with `ContextOptions` applying `BaseURL` and viewport. All test fixtures in this repo inherit this, not `PageTest` directly.

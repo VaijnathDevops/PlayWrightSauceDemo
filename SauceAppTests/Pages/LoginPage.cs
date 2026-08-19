@@ -1,6 +1,6 @@
 using Microsoft.Playwright;
 
-namespace TestProject1.Pages
+namespace SauceAppTests.Pages
 {
     /// <summary>
     /// Page Object for the SauceDemo login page (https://www.saucedemo.com).

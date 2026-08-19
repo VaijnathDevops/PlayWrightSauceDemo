@@ -1,8 +1,8 @@
 using Microsoft.Playwright;
-using TestProject1.Pages;
-using TestProject1.Utilities;
+using SauceAppTests.Pages;
+using SauceAppTests.Utilities;
 
-namespace TestProject1
+namespace SauceAppTests
 {
     /// <summary>
     /// Automates TestCases/Checkout.md (TC-CHECKOUT-001 through 003) against the live SauceDemo app
@@ -20,7 +20,7 @@ namespace TestProject1
         private CartPage _cartPage = null!;
         private CheckoutPage _checkoutPage = null!;
 
-        // Product and customer data are sourced from TestProject1/TestData/*.csv rather than
+        // Product and customer data are sourced from SauceAppTests/TestData/*.csv rather than
         // hardcoded here, so test data can be updated without touching test code.
         private string _firstProduct = null!;
         private string _secondProduct = null!;
@@ -53,7 +53,7 @@ namespace TestProject1
             _customerZipCode = customerRow["ZipCode"];
         }
 
-        // Screenshot-on-failure is provided by the shared TestProject1.Common.PlaywrightTestBase
+        // Screenshot-on-failure is provided by the shared SauceAppTests.Common.PlaywrightTestBase
         // [TearDown], so it doesn't need to be duplicated here.
 
         [Test]

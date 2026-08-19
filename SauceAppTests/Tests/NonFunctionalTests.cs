@@ -1,10 +1,10 @@
 using Deque.AxeCore.Commons;
 using Deque.AxeCore.Playwright;
 using Microsoft.Playwright;
-using TestProject1.Pages;
-using TestProject1.Utilities;
+using SauceAppTests.Pages;
+using SauceAppTests.Utilities;
 
-namespace TestProject1
+namespace SauceAppTests
 {
     /// <summary>
     /// Automates TestCases/NonFunctional.md (TC-NFR-001 through TC-NFR-004) - cross-cutting
@@ -23,10 +23,10 @@ namespace TestProject1
     ///   intercept there for TC-NFR-003; the Google Fonts request was used instead, per the
     ///   documented fallback in the manual test case file.
     /// - Microsoft.Playwright.NUnit 1.52.0 has no ToHaveScreenshotAsync (see
-    ///   TestProject1.Utilities.VisualBaseline for the confirmed reflection findings and the
+    ///   SauceAppTests.Utilities.VisualBaseline for the confirmed reflection findings and the
     ///   pixel-diff-based replacement used for TC-NFR-001).
     /// - The .NET-compatible axe-core binding used for TC-NFR-004 is Deque.AxeCore.Playwright
-    ///   4.13.0 (NuGet, already referenced in TestProject1.csproj), which wraps the real axe-core
+    ///   4.13.0 (NuGet, already referenced in SauceAppTests.csproj), which wraps the real axe-core
     ///   engine (confirmed: AxeResult.TestEngine reports "axe-core 4.13.0" at scan time).
     /// </summary>
     [TestFixture]

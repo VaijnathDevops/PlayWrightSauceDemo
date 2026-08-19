@@ -1,11 +1,11 @@
 ---
 name: page-object-model-generator
-description: Use when creating or extending Page Object classes for the application under test. Produces well-structured C# POM files in TestProject1/Pages/ using Playwright's preferred locator strategies (role, label, text, testid over CSS/XPath).
+description: Use when creating or extending Page Object classes for the application under test. Produces well-structured C# POM files in SauceAppTests/Pages/ using Playwright's preferred locator strategies (role, label, text, testid over CSS/XPath).
 ---
 
 # Page Object Model Generator
 
-Creates or extends Page Object classes in `TestProject1/Pages/`, one class per page/component, following the POM conventions in this repo.
+Creates or extends Page Object classes in `SauceAppTests/Pages/`, one class per page/component, following the POM conventions in this repo.
 
 ---
 
@@ -14,8 +14,8 @@ Creates or extends Page Object classes in `TestProject1/Pages/`, one class per p
 ### 1. Identify which pages are needed
 
 - Read the requirement or list of pages given by the user.
-- Glob `TestProject1/Pages/*.cs` — if a class for a page already exists, **extend it**, don't create a duplicate.
-- For each page not yet covered, create `TestProject1/Pages/<PageName>Page.cs`.
+- Glob `SauceAppTests/Pages/*.cs` — if a class for a page already exists, **extend it**, don't create a duplicate.
+- For each page not yet covered, create `SauceAppTests/Pages/<PageName>Page.cs`.
 - Minimum three distinct pages must be covered by this skill run (per project requirement). For SauceDemo, the standard set is: `LoginPage`, `InventoryPage`, `CartPage`, `CheckoutPage`, `ProductDetailPage`.
 
 ---
@@ -79,7 +79,7 @@ Known `data-test` attributes for SauceDemo (labeled "verified" by a prior sessio
 ```csharp
 using Microsoft.Playwright;
 
-namespace TestProject1.Pages
+namespace SauceAppTests.Pages
 {
 	public class <PageName>Page(IPage page)
 	{
@@ -109,7 +109,7 @@ namespace TestProject1.Pages
 - **No navigation inside action methods** (except `GoToAsync`) — let the test control flow.
 - All public methods are `async Task` or `async Task<T>`.
 - Use `SauceDemoConstants.Urls.*` for URLs — no hardcoded strings.
-- **Never hardcode a credential value** (username, password, token) in a Page Object, including in `SauceDemoConstants` — not even SauceDemo's own public demo accounts. Actions like `LoginAsync` accept credentials as parameters (as shown below); the caller supplies them from `TestSettings` (`TestProject1/TestSettings.cs`). See CLAUDE.md's "Credentials & Sensitive Data" section.
+- **Never hardcode a credential value** (username, password, token) in a Page Object, including in `SauceDemoConstants` — not even SauceDemo's own public demo accounts. Actions like `LoginAsync` accept credentials as parameters (as shown below); the caller supplies them from `TestSettings` (`SauceAppTests/TestSettings.cs`). See CLAUDE.md's "Credentials & Sensitive Data" section.
 
 ---
 
@@ -119,9 +119,9 @@ namespace TestProject1.Pages
 
 ```csharp
 using Microsoft.Playwright;
-using TestProject1.Helpers;
+using SauceAppTests.Helpers;
 
-namespace TestProject1.Pages
+namespace SauceAppTests.Pages
 {
 	public class LoginPage(IPage page)
 	{
@@ -155,9 +155,9 @@ namespace TestProject1.Pages
 
 ```csharp
 using Microsoft.Playwright;
-using TestProject1.Helpers;
+using SauceAppTests.Helpers;
 
-namespace TestProject1.Pages
+namespace SauceAppTests.Pages
 {
 	public class InventoryPage(IPage page)
 	{
@@ -215,9 +215,9 @@ namespace TestProject1.Pages
 
 ```csharp
 using Microsoft.Playwright;
-using TestProject1.Helpers;
+using SauceAppTests.Helpers;
 
-namespace TestProject1.Pages
+namespace SauceAppTests.Pages
 {
 	public class CartPage(IPage page)
 	{
@@ -255,9 +255,9 @@ namespace TestProject1.Pages
 
 ```csharp
 using Microsoft.Playwright;
-using TestProject1.Helpers;
+using SauceAppTests.Helpers;
 
-namespace TestProject1.Pages
+namespace SauceAppTests.Pages
 {
 	public class CheckoutPage(IPage page)
 	{
@@ -317,7 +317,7 @@ namespace TestProject1.Pages
 ### 5. Build after every file
 
 ```powershell
-cd TestProject1
+cd SauceAppTests
 dotnet build
 ```
 

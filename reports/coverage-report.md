@@ -36,7 +36,7 @@ Tracks the traceability between manual test case IDs and automated test methods.
 Select-String -Path TestCases\*.md -Pattern "TC-[A-Z]+-\d{3}" | Select-Object -ExpandProperty Matches | Select-Object -ExpandProperty Value | Sort-Object -Unique
 
 # All automated TC IDs referenced
-Select-String -Path TestProject1\Tests\*.cs -Pattern "TC-[A-Z]+-\d{3}" | Select-Object -ExpandProperty Matches | Select-Object -ExpandProperty Value | Sort-Object -Unique
+Select-String -Path SauceAppTests\Tests\*.cs -Pattern "TC-[A-Z]+-\d{3}" | Select-Object -ExpandProperty Matches | Select-Object -ExpandProperty Value | Sort-Object -Unique
 ```
 
 IDs in the first list but not the second = **automation gap**.

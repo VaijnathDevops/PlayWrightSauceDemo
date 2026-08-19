@@ -1,6 +1,6 @@
 using Deque.AxeCore.Commons;
 
-namespace TestProject1.Utilities
+namespace SauceAppTests.Utilities
 {
     /// <summary>
     /// Helpers around Deque.AxeCore.Playwright (the .NET-compatible axe-core binding used in place of

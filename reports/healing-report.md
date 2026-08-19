@@ -8,20 +8,20 @@ Tracks every self-heal session: which tests were failing, what was tried, and th
 
 <!-- Add a new block below for each healing session. Most recent first. -->
 
-### Session — YYYY-MM-DD
+### Session — 2026-08-19
 
 | Field | Value |
 |---|---|
-| Date | YYYY-MM-DD |
-| Trigger | `/heal-tests` / manual |
-| Scope | Full suite / `<ClassName>` / `<MethodName>` |
+| Date | 2026-08-19 |
+| Trigger | Manual ("run all tests and heal if fails") |
+| Scope | Full suite (`dotnet test`, headless, Chromium) |
 | Iterations cap | 5 per test |
 
 #### Outcome Table
 
 | Test | Iterations | Outcome | Root Cause | Change Made |
 |---|---|---|---|---|
-| — | — | — | — | — |
+| InventoryPage_AccessibilityScan_HasNoCriticalOrSeriousViolations (TC-NFR-004) | 1 (diagnosis only) | 🐛 App bug | axe-core `select-name` (critical, WCAG 4.1.2): the inventory page's product-sort `<select class="product_sort_container" data-test="product-sort-container">` has no `<label>`, `aria-label`/`aria-labelledby`, or `title` — genuinely unlabeled for assistive tech on the live app | None — assertion left as-is per Self-Healing Policy; not filed as `BUG-<NUM>` yet, awaiting user direction on bug-report format/location |
 
 **Outcome key:**
 - ✅ Fixed — test is now green
@@ -30,6 +30,8 @@ Tracks every self-heal session: which tests were failing, what was tried, and th
 - 🚫 Stopped — hit 5-iteration cap
 
 #### Session Notes
+
+All other 20 tests passed on this run (Login, Logout, Checkout, and the remaining NonFunctional cases). No selector drift, timing, or assertion-staleness failures observed — the only red test is this accessibility finding.
 
 ---
 

@@ -1,7 +1,7 @@
 using Microsoft.Playwright;
 using Microsoft.Playwright.NUnit;
 
-namespace TestProject1.Common
+namespace SauceAppTests.Common
 {
     /// <summary>
     /// Shared base class for all Playwright/NUnit test fixtures in this project. Centralizes the

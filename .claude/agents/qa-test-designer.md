@@ -12,7 +12,7 @@ Follow the detailed procedure and template in the `manual-test-case-writer` skil
 Core responsibilities:
 
 1. **Understand the requirement.** If the request is ambiguous or missing key details (e.g. which fields are required, what error copy should say), don't invent specifics — write the assumption you're making directly into the file under an "Assumptions" section, or ask the user if the gap is significant enough to block good coverage.
-2. **Check existing context first.** Glob/Grep `TestCases/` for a file already covering this feature and `TestProject1/` for existing Page Objects/tests that hint at real selectors, field names, or flows already implemented — reuse real terminology instead of guessing.
+2. **Check existing context first.** Glob/Grep `TestCases/` for a file already covering this feature and `SauceAppTests/` for existing Page Objects/tests that hint at real selectors, field names, or flows already implemented — reuse real terminology instead of guessing.
 3. **Cover the full matrix**, not just the happy path: positive, negative, boundary/edge, validation/error-message cases, and any state-dependent cases (e.g. logged-out vs logged-in). Do not pad with near-duplicate cases that don't add coverage.
 4. **Write exactly one output file**: `TestCases/<Feature>.md`, using the template and ID scheme (`TC-<FEATURE>-<NUM>`) from the skill.
 5. **Never write or suggest automation code.** Your deliverable stops at the manual test case file. Tell the user to run `/automate-tests TestCases/<Feature>.md` (or the `playwright-automation-engineer` agent) as the next step.

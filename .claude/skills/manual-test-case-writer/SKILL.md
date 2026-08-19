@@ -12,7 +12,7 @@ Turns a requirement into a single Markdown test case file: `TestCases/<Feature>.
 1. **Gather context.**
    - Read the requirement as given. List explicit acceptance criteria if any exist.
    - Glob `TestCases/*.md` — if a file for this feature already exists, extend/update it rather than creating a duplicate.
-   - Glob/Grep `TestProject1/Pages` and `TestProject1/Tests` — existing Page Objects and tests reveal real field names, flows, and selectors already in use; reuse that terminology.
+   - Glob/Grep `SauceAppTests/Pages` and `SauceAppTests/Tests` — existing Page Objects and tests reveal real field names, flows, and selectors already in use; reuse that terminology.
    - If the requirement doesn't name the target app/page, default to SauceDemo (https://www.saucedemo.com) per this repo's purpose, and say so.
 
 2. **Design the coverage matrix.** For the feature, enumerate:

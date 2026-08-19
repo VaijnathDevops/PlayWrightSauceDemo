@@ -1,4 +1,4 @@
-namespace TestProject1
+namespace SauceAppTests
 {
     public static class TestSettings
     {

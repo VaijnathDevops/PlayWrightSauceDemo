@@ -1,11 +1,11 @@
 ---
 name: test-self-heal
-description: Use when Playwright/NUnit tests in this repo are failing and need iterative root-cause diagnosis and fixing until green (or a genuine blocker is identified). The self-healing loop for TestProject1.
+description: Use when Playwright/NUnit tests in this repo are failing and need iterative root-cause diagnosis and fixing until green (or a genuine blocker is identified). The self-healing loop for SauceAppTests.
 ---
 
 # Test Self-Heal Loop
 
-Iteratively diagnoses and fixes failing tests in `TestProject1`, bounded so it can't spiral or fake a pass.
+Iteratively diagnoses and fixes failing tests in `SauceAppTests`, bounded so it can't spiral or fake a pass.
 
 ## Loop
 

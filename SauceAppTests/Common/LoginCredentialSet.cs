@@ -1,8 +1,8 @@
-namespace TestProject1.Common
+namespace SauceAppTests.Common
 {
     /// <summary>
     /// Named credential combinations used to drive Login_WithVariousCredentialSets_ProducesExpectedOutcome
-    /// (TC-LOGIN-008) in TestProject1.Tests.AuthenticationTests.
+    /// (TC-LOGIN-008) in SauceAppTests.Tests.AuthenticationTests.
     /// </summary>
     public enum LoginCredentialSet
     {

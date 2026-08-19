@@ -22,21 +22,21 @@ steps:
 
   - script: dotnet restore
     displayName: 'Restore dependencies'
-    workingDirectory: TestProject1
+    workingDirectory: SauceAppTests
 
   - script: dotnet build --configuration Release --no-restore
     displayName: 'Build'
-    workingDirectory: TestProject1
+    workingDirectory: SauceAppTests
 
   - script: pwsh bin/Release/net10.0/playwright.ps1 install --with-deps
     displayName: 'Install Playwright browsers'
-    workingDirectory: TestProject1
+    workingDirectory: SauceAppTests
 
-  # -- Playwright.LaunchOptions.Headless=true overrides TestProject1/.runsettings (which defaults to
+  # -- Playwright.LaunchOptions.Headless=true overrides SauceAppTests/.runsettings (which defaults to
   # headed for local dev convenience) so CI always runs headless regardless of that local default.
   - script: dotnet test --configuration Release --no-build --logger trx --results-directory "$(Agent.TempDirectory)/TestResults" -- Playwright.LaunchOptions.Headless=true
     displayName: 'Run Playwright/NUnit tests'
-    workingDirectory: TestProject1
+    workingDirectory: SauceAppTests
     env:
       SAUCE_STANDARD_USERNAME: $(SAUCE_STANDARD_USERNAME)
       SAUCE_LOCKED_OUT_USERNAME: $(SAUCE_LOCKED_OUT_USERNAME)
