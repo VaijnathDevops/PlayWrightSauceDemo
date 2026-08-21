@@ -1,6 +1,3 @@
-using System.Globalization;
-using CsvHelper;
-using CsvHelper.Configuration;
 using SauceAppTests.DTOs;
 
 namespace SauceAppTests.Utilities
@@ -56,14 +53,7 @@ namespace SauceAppTests.Utilities
                 throw new FileNotFoundException($"TestData file not found: {path}");
             }
 
-            var config = new CsvConfiguration(CultureInfo.InvariantCulture)
-            {
-                HeaderValidated = null,
-                MissingFieldFound = null
-            };
-            using var reader = new StreamReader(path);
-            using var csvReader = new CsvReader(reader, config);
-            return csvReader.GetRecords<T>().ToList();
+            return CsvExposureHelper.ReadCsvToObject<T>(path);
         }
     }
 }
