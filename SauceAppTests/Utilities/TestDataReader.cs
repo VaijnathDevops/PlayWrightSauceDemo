@@ -1,6 +1,7 @@
 using System.Globalization;
 using CsvHelper;
 using CsvHelper.Configuration;
+using SauceAppTests.DTOs;
 
 namespace SauceAppTests.Utilities
 {

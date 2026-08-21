@@ -1,4 +1,4 @@
-namespace SauceAppTests.Utilities
+namespace SauceAppTests.DTOs
 {
     /// <summary>
     /// Strongly-typed row from SauceAppTests/TestData/products.csv, keyed by <see cref="Key"/>
