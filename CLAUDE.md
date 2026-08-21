@@ -13,6 +13,7 @@ This repo works from **requirement → manual test cases → automation → self
 | Manual test cases | `/write-test-cases` | `qa-test-designer` | `manual-test-case-writer` |
 | Automation code | `/automate-tests` | `playwright-automation-engineer` | `playwright-automation-generator` |
 | Fix failing tests | `/heal-tests` | `test-healer` | `test-self-heal` |
+| Run tests (execute + auto-heal + reports) | `/run-tests` | `test-runner` (chains into `test-healer`) | `test-execution` |
 | All five, end to end | `/qa-pipeline` | (chains the above) | see `.claude/workflows/testing-workflow.md` |
 
 Full pipeline detail: [.claude/workflows/testing-workflow.md](.claude/workflows/testing-workflow.md).

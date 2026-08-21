@@ -43,6 +43,8 @@ C# UI test automation for [saucedemo.com](https://www.saucedemo.com), built with
 
 All commands run from `SauceAppTests/` (or pass `--project SauceAppTests`).
 
+Both `.runsettings` files pin `NumberOfTestWorkers` to `1`: fixtures are `[Parallelizable(ParallelScope.Self)]`, but running them in parallel launches multiple headed browser instances at once and exhausts local resources (confirmed by re-running the same failures serially and getting a clean pass), so the suite runs sequentially by design.
+
 ```bash
 # Run the full suite (Chromium, headed — see SauceAppTests/.runsettings)
 dotnet test
@@ -106,12 +108,18 @@ PlayWrightSauceDemo/
     │   └── NonFunctionalTests.cs    # NonFunctional.md
     │
     ├── Common/
-    │   ├── PlaywrightTestBase.cs    # Shared PageTest base: screenshot-on-failure [TearDown]
+    │   ├── PlaywrightTestBase.cs    # Shared PageTest base: LoginAsStandardUserAsync() + screenshot-on-failure [TearDown]
+    │   ├── ErrorMessages.cs         # Single source of truth for user-facing error/validation copy (Login, Checkout)
     │   ├── LoginCredentialSet.cs    # Enum driving the data-driven login TestCase
+    │   ├── CheckoutValidationScenario.cs # Enum driving the data-driven checkout field-validation TestCase
     │   └── PostLogoutNavigation.cs  # Enum driving the data-driven post-logout-access TestCase
     │
+    ├── DTOs/
+    │   ├── CustomerDTO.cs         # Strongly-typed row from TestData/customers.csv, keyed by "Key"
+    │   └── ProductDTO.cs          # Strongly-typed row from TestData/products.csv, keyed by "Key"
+    │
     ├── Utilities/
-    │   ├── TestDataReader.cs        # Minimal CSV lookup reader for TestData/*.csv
+    │   ├── CsvExposureHelper.cs     # Generic CsvHelper wrapper; tests bind TestData/*.csv rows to DTOs via ReadCsvToObject<T>()
     │   ├── VisualBaseline.cs        # Custom screenshot-diff comparison (no built-in equivalent in this Playwright .NET version)
     │   └── AccessibilityAssertions.cs # Helpers around Deque.AxeCore.Playwright for a11y scans
     │
@@ -136,6 +144,7 @@ This repo drives its QA workflow through custom Claude Code agents, skills, and 
 | Manual test cases | `/write-test-cases` |
 | Automation code | `/automate-tests` |
 | Fix failing tests | `/heal-tests` |
+| Run tests (execute + auto-heal + reports) | `/run-tests` |
 | All of the above, end to end | `/qa-pipeline` |
 
 ## Conventions (see CLAUDE.md for full detail)

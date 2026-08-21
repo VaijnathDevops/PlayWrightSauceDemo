@@ -1,4 +1,6 @@
 using Microsoft.Playwright;
+using SauceAppTests.Common;
+using SauceAppTests.DTOs;
 using SauceAppTests.Pages;
 using SauceAppTests.Utilities;
 
@@ -6,14 +8,14 @@ namespace SauceAppTests
 {
     /// <summary>
     /// Automates TestCases/Checkout.md (TC-CHECKOUT-001 through 003) against the live SauceDemo app
-    /// (https://www.saucedemo.com). Selectors, sort options, checkout copy, and the empty-cart
-    /// checkout behavior verified against the live app on 2026-08-18.
+    /// (https://www.saucedemo.com). Selectors, sort options, and checkout copy verified against the
+    /// live app on 2026-08-18. Expected error copy is sourced from the shared
+    /// <see cref="ErrorMessages.Checkout"/> class rather than duplicated here.
     /// </summary>
     [TestFixture]
     public class CheckoutTests : Common.PlaywrightTestBase
     {
         private const string OrderConfirmationHeading = "Thank you for your order!";
-        private const string PostalCodeRequiredError = "Error: Postal Code is required";
 
         private LoginPage _loginPage = null!;
         private InventoryPage _inventoryPage = null!;
@@ -39,18 +41,22 @@ namespace SauceAppTests
             _checkoutPage = new CheckoutPage(Page);
 
             await _loginPage.GotoAsync();
-            await _loginPage.LoginAsync(TestSettings.StandardUsername, TestSettings.Password);
-            await Expect(Page).ToHaveURLAsync(new Regex(_inventoryPage.UrlPattern));
+            await LoginAsStandardUserAsync(_loginPage, _inventoryPage);
 
-            var firstProductRow = TestDataReader.GetRow("products.csv", "First");
-            var secondProductRow = TestDataReader.GetRow("products.csv", "Second");
-            _firstProduct = firstProductRow["Name"];
-            _secondProduct = secondProductRow["Name"];
+            // Test host runs from SauceAppTests/bin/Debug/net10.0 - three levels up is SauceAppTests/.
+            var testDataDirectory = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
 
-            var customerRow = TestDataReader.GetRow("customers.csv", "Default");
-            _customerFirstName = customerRow["FirstName"];
-            _customerLastName = customerRow["LastName"];
-            _customerZipCode = customerRow["ZipCode"];
+            var products = CsvExposureHelper.ReadCsvToObject<ProductDTO>(Path.Combine(testDataDirectory, "products.csv"));
+            var firstProduct = products.First(p => p.Key == "First");
+            var secondProduct = products.First(p => p.Key == "Second");
+            _firstProduct = firstProduct.Name;
+            _secondProduct = secondProduct.Name;
+
+            var customers = CsvExposureHelper.ReadCsvToObject<CustomerDTO>(Path.Combine(testDataDirectory, "customers.csv"));
+            var customer = customers.First(c => c.Key == "Default");
+            _customerFirstName = customer.FirstName;
+            _customerLastName = customer.LastName;
+            _customerZipCode = customer.ZipCode;
         }
 
         // Screenshot-on-failure is provided by the shared SauceAppTests.Common.PlaywrightTestBase
@@ -100,8 +106,8 @@ namespace SauceAppTests
         }
 
         [Test]
-        [Description("TC-CHECKOUT-002: Checkout with an empty cart - the cart shows no items, and SauceDemo's Checkout control (confirmed live) does not block proceeding to the customer-info step despite the empty cart")]
-        public async Task Checkout_WithEmptyCart_ShowsEmptyCartAndDoesNotBlockCheckout()
+        [Description("TC-CHECKOUT-002: Checkout must not proceed with an empty cart. KNOWN BUG (see TestCases/Checkout.md, BUG-CHECKOUT-001): the live SauceDemo app does not enforce this - clicking Checkout with zero items proceeds straight to the customer-info step anyway. This test encodes the correct expected behavior and is expected to fail until the app is fixed; per this repo's self-healing policy it is reported as a product bug candidate rather than weakened to force a green result.")]
+        public async Task Checkout_WithEmptyCart_DoesNotProceedToCustomerInfoStep()
         {
             await Expect(_inventoryPage.CartBadge).Not.ToBeVisibleAsync();
 
@@ -110,34 +116,97 @@ namespace SauceAppTests
             await Expect(Page).ToHaveURLAsync(new Regex(_cartPage.UrlPattern));
             await Expect(_cartPage.CartItems).ToHaveCountAsync(0);
 
-            // 3. Attempt to proceed to checkout: the Checkout control is available and enabled, and
-            // clicking it does not block the user - it proceeds straight to the customer-info step,
-            // exactly as it would with items in the cart. This is confirmed live behavior of the public
-            // SauceDemo app (it does not enforce a non-empty cart before allowing checkout to begin).
-            await Expect(_cartPage.CheckoutButton).ToBeVisibleAsync();
-            await Expect(_cartPage.CheckoutButton).ToBeEnabledAsync();
+            // 3. Attempt to proceed to checkout with no product in the cart.
             await _cartPage.ProceedToCheckoutAsync();
-            await Expect(Page).ToHaveURLAsync(new Regex(_checkoutPage.StepOneUrlPattern));
+
+            // Expected (correct) behavior: checkout is blocked and the user stays on the cart page -
+            // the customer-info step must never be reached with an empty cart.
+            await Expect(Page).ToHaveURLAsync(new Regex(_cartPage.UrlPattern));
+            await Expect(Page).Not.ToHaveURLAsync(new Regex(_checkoutPage.StepOneUrlPattern));
         }
 
         [Test]
-        [Description("TC-CHECKOUT-003: Checkout customer-info form shows a validation error when a required field (Zip/Postal Code) is missing")]
-        public async Task Checkout_WithMissingPostalCode_ShowsValidationErrorAndDoesNotProceed()
+        [Description("TC-CHECKOUT-003: Checkout customer-info form validates First Name, Last Name, and Zip/Postal Code as required, each with its own error message, and only proceeds when all three are provided")]
+        [TestCase(CheckoutValidationScenario.MissingFirstName)]
+        [TestCase(CheckoutValidationScenario.MissingLastName)]
+        [TestCase(CheckoutValidationScenario.MissingPostalCode)]
+        [TestCase(CheckoutValidationScenario.AllFieldsMissing)]
+        [TestCase(CheckoutValidationScenario.AllFieldsValid)]
+        public async Task Checkout_WithVariousFieldCombinations_ProducesExpectedOutcome(CheckoutValidationScenario scenario)
         {
             await _inventoryPage.AddProductToCartAsync(_firstProduct);
             await _inventoryPage.GoToCartAsync();
             await _cartPage.ProceedToCheckoutAsync();
             await Expect(Page).ToHaveURLAsync(new Regex(_checkoutPage.StepOneUrlPattern));
 
-            // 1. Leave Zip/Postal Code empty. 2. Click Continue.
-            await _checkoutPage.FillCustomerInfoAsync(_customerFirstName, _customerLastName, string.Empty);
+            var (firstName, lastName, zipCode) = scenario switch
+            {
+                CheckoutValidationScenario.MissingFirstName => (string.Empty, _customerLastName, _customerZipCode),
+                CheckoutValidationScenario.MissingLastName => (_customerFirstName, string.Empty, _customerZipCode),
+                CheckoutValidationScenario.MissingPostalCode => (_customerFirstName, _customerLastName, string.Empty),
+                CheckoutValidationScenario.AllFieldsMissing => (string.Empty, string.Empty, string.Empty),
+                CheckoutValidationScenario.AllFieldsValid => (_customerFirstName, _customerLastName, _customerZipCode),
+                _ => throw new ArgumentOutOfRangeException(nameof(scenario))
+            };
+
+            await _checkoutPage.FillCustomerInfoAsync(firstName, lastName, zipCode);
             await _checkoutPage.ContinueAsync();
 
-            // Form submission is rejected; the user remains on the customer-info step with a
-            // validation error, and does not proceed to the overview step.
-            await Expect(_checkoutPage.ErrorMessage).ToHaveTextAsync(PostalCodeRequiredError);
+            switch (scenario)
+            {
+                case CheckoutValidationScenario.MissingFirstName:
+                    await Expect(_checkoutPage.ErrorMessage).ToHaveTextAsync(ErrorMessages.Checkout.FirstNameRequired);
+                    await Expect(Page).ToHaveURLAsync(new Regex(_checkoutPage.StepOneUrlPattern));
+                    break;
+                case CheckoutValidationScenario.MissingLastName:
+                    await Expect(_checkoutPage.ErrorMessage).ToHaveTextAsync(ErrorMessages.Checkout.LastNameRequired);
+                    await Expect(Page).ToHaveURLAsync(new Regex(_checkoutPage.StepOneUrlPattern));
+                    break;
+                case CheckoutValidationScenario.MissingPostalCode:
+                    await Expect(_checkoutPage.ErrorMessage).ToHaveTextAsync(ErrorMessages.Checkout.PostalCodeRequired);
+                    await Expect(Page).ToHaveURLAsync(new Regex(_checkoutPage.StepOneUrlPattern));
+                    break;
+                case CheckoutValidationScenario.AllFieldsMissing:
+                    // Confirmed live (2026-08-21): the app validates fields in DOM order (First Name,
+                    // then Last Name, then Zip/Postal Code) and reports only the first blank one it
+                    // finds, so with all three empty it shows the same error as MissingFirstName.
+                    await Expect(_checkoutPage.ErrorMessage).ToHaveTextAsync(ErrorMessages.Checkout.FirstNameRequired);
+                    await Expect(Page).ToHaveURLAsync(new Regex(_checkoutPage.StepOneUrlPattern));
+                    break;
+                case CheckoutValidationScenario.AllFieldsValid:
+                    await Expect(Page).ToHaveURLAsync(new Regex(_checkoutPage.StepTwoUrlPattern));
+                    await Expect(_checkoutPage.PageTitle).ToHaveTextAsync("Checkout: Overview");
+                    break;
+            }
+        }
+
+        [Test]
+        [Description("TC-CHECKOUT-004: 'Continue Shopping' on the cart page returns the user to the inventory page")]
+        public async Task ContinueShopping_FromCartPage_ReturnsToInventoryPage()
+        {
+            await _inventoryPage.AddProductToCartAsync(_firstProduct);
+            await _inventoryPage.GoToCartAsync();
+            await Expect(Page).ToHaveURLAsync(new Regex(_cartPage.UrlPattern));
+
+            await _cartPage.ContinueShoppingAsync();
+
+            await Expect(Page).ToHaveURLAsync(new Regex(_inventoryPage.UrlPattern));
+            await Expect(_inventoryPage.PageTitle).ToHaveTextAsync("Products");
+        }
+
+        [Test]
+        [Description("TC-CHECKOUT-005: 'Cancel' on the customer-info step returns the user to the cart page")]
+        public async Task Cancel_FromCustomerInfoStep_ReturnsToCartPage()
+        {
+            await _inventoryPage.AddProductToCartAsync(_firstProduct);
+            await _inventoryPage.GoToCartAsync();
+            await _cartPage.ProceedToCheckoutAsync();
             await Expect(Page).ToHaveURLAsync(new Regex(_checkoutPage.StepOneUrlPattern));
-            await Expect(_checkoutPage.PageTitle).ToHaveTextAsync("Checkout: Your Information");
+
+            await _checkoutPage.CancelAsync();
+
+            await Expect(Page).ToHaveURLAsync(new Regex(_cartPage.UrlPattern));
+            await Expect(_cartPage.CartItemNames).ToHaveTextAsync(new[] { _firstProduct });
         }
     }
 }

@@ -16,6 +16,10 @@ namespace SauceAppTests.Pages
     ///   highest-available tier. Confirmed live: each resolves to exactly one element.
     /// - "Continue" and "Finish" are plain-text &lt;button&gt;s with implicit "button" accessible roles and
     ///   unique names on their respective pages — confirmed live — so GetByRole(Button, ...) applies.
+    /// - Step One's "Cancel" is &lt;button data-test="cancel" id="cancel"&gt;Cancel&lt;/button&gt; — despite the
+    ///   "back" styling class it is a real &lt;button&gt; (not an anchor), confirmed live via outerHTML
+    ///   inspection, with a unique accessible "button" role/name, and confirmed live to navigate back to
+    ///   the cart page (cart.html) when clicked.
     /// - The order-complete heading is &lt;h2 class="complete-header" data-test="complete-header"&gt;Thank you
     ///   for your order!&lt;/h2&gt; — a real &lt;h2&gt; has an implicit "heading" accessible role, confirmed live via
     ///   AriaSnapshotAsync, so GetByRole(Heading, "Thank you for your order!") is used.
@@ -48,6 +52,7 @@ namespace SauceAppTests.Pages
         public ILocator LastNameInput => _page.GetByPlaceholder("Last Name");
         public ILocator ZipCodeInput => _page.GetByPlaceholder("Zip/Postal Code");
         public ILocator ContinueButton => _page.GetByRole(AriaRole.Button, new() { Name = "Continue" });
+        public ILocator CancelButton => _page.GetByRole(AriaRole.Button, new() { Name = "Cancel" });
 
         // Step Two: order overview.
         public ILocator OverviewItemNames => _page.Locator(".cart_item .inventory_item_name");
@@ -73,6 +78,14 @@ namespace SauceAppTests.Pages
         public async Task ContinueAsync()
         {
             await ContinueButton.ClickAsync();
+        }
+
+        /// <summary>
+        /// Cancels Step One's customer-info form, returning to the cart page.
+        /// </summary>
+        public async Task CancelAsync()
+        {
+            await CancelButton.ClickAsync();
         }
 
         /// <summary>

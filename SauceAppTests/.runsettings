@@ -4,6 +4,15 @@
     <ResultsDirectory>.\TestResults</ResultsDirectory>
   </RunConfiguration>
 
+  <!-- Forces sequential execution. Fixtures are marked [Parallelizable(ParallelScope.Self)], and
+       running them in parallel launches multiple headed Chromium instances at once, which
+       exhausts local resources (net::ERR_INSUFFICIENT_RESOURCES / TargetClosedException /
+       navigation timeouts - confirmed by re-running the same failures serially and getting a
+       clean pass). -->
+  <NUnit>
+    <NumberOfTestWorkers>1</NumberOfTestWorkers>
+  </NUnit>
+
   <!-- Default browser for `dotnet test`/Test Explorer runs. To run the same suite against
        Firefox instead, pass SauceAppTests/firefox.runsettings (see that file) via
        "dotnet test /settings:firefox.runsettings" or the Test Explorer settings picker. -->

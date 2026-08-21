@@ -8,6 +8,34 @@ Tracks every self-heal session: which tests were failing, what was tried, and th
 
 <!-- Add a new block below for each healing session. Most recent first. -->
 
+### Session — 2026-08-21
+
+| Field | Value |
+|---|---|
+| Date | 2026-08-21 |
+| Trigger | `/run-tests` (full suite) |
+| Scope | Full suite (`dotnet test SauceAppTests/SauceAppTests.csproj`) |
+| Iterations cap | 5 per test |
+
+#### Outcome Table
+
+| Test | Iterations | Outcome | Root Cause | Change Made |
+|---|---|---|---|---|
+| Checkout_WithEmptyCart_DoesNotProceedToCustomerInfoStep (BUG-CHECKOUT-001) | 1 (diagnosis only) | 🐛 App bug | `CartPage.ProceedToCheckoutAsync()` correctly clicks the real "Checkout" button — no selector drift. The live app itself does not block checkout when the cart is empty; it proceeds straight to `checkout-step-one.html` instead of staying on `cart.html`. Already logged as `BUG-CHECKOUT-001` in `TestCases/Checkout.md` | None — assertion left as-is; already documented, no new filing needed |
+| InventoryPage_AccessibilityScan_HasNoCriticalOrSeriousViolations (TC-NFR-004) | 1 (diagnosis only) | 🐛 App bug | Re-confirmed the 2026-08-19 finding: axe-core `select-name` (critical) — product-sort `<select>` on the live inventory page still has no accessible name. Unchanged since prior session | None — assertion left as-is; same known app bug, no new filing needed |
+
+**Outcome key:**
+- ✅ Fixed — test is now green
+- ❌ Still failing — escalated to user
+- 🐛 App bug — filed as `BUG-<NUM>` in `qa-assets/bug-reports/`
+- 🚫 Stopped — hit 5-iteration cap
+
+#### Session Notes
+
+25 of 27 tests passed. Both failures are pre-existing, previously-diagnosed app-side defects (one accessibility, one checkout-flow validation gap) — confirmation re-run after this session reproduced identical failures, ruling out flakiness. No test code was modified.
+
+---
+
 ### Session — 2026-08-19
 
 | Field | Value |

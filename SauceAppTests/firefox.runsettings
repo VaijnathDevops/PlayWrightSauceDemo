@@ -4,6 +4,12 @@
 	<ResultsDirectory>.\TestResults</ResultsDirectory>
   </RunConfiguration>
 
+  <!-- See .runsettings: sequential execution avoids resource exhaustion from multiple concurrent
+       headed browser instances. -->
+  <NUnit>
+	<NumberOfTestWorkers>1</NumberOfTestWorkers>
+  </NUnit>
+
   <!-- Run the same suite against Firefox: "dotnet test /settings:firefox.runsettings" -->
   <Playwright>
 	<BrowserName>firefox</BrowserName>

@@ -14,11 +14,6 @@ namespace SauceAppTests
     [TestFixture]
     public class AuthenticationTests : Common.PlaywrightTestBase
     {
-        private const string InvalidCredentialsError = "Epic sadface: Username and password do not match any user in this service";
-        private const string LockedOutError = "Epic sadface: Sorry, this user has been locked out.";
-        private const string UsernameRequiredError = "Epic sadface: Username is required";
-        private const string PasswordRequiredError = "Epic sadface: Password is required";
-        private const string ProtectedPageError = "Epic sadface: You can only access '/inventory.html' when you are logged in.";
         private const string InventoryUrl = "https://www.saucedemo.com/inventory.html";
 
         // Deliberately fake values used only to exercise negative paths — never real credentials.
@@ -62,7 +57,7 @@ namespace SauceAppTests
         {
             await _loginPage.LoginAsync(TestSettings.StandardUsername, WrongPassword);
 
-            await Expect(_loginPage.ErrorMessage).ToHaveTextAsync(InvalidCredentialsError);
+            await Expect(_loginPage.ErrorMessage).ToHaveTextAsync(ErrorMessages.Login.InvalidCredentials);
             await Expect(Page).ToHaveURLAsync(_loginPage.Url + "/");
         }
 
@@ -72,7 +67,7 @@ namespace SauceAppTests
         {
             await _loginPage.LoginAsync(NonExistentUsername, TestSettings.Password);
 
-            await Expect(_loginPage.ErrorMessage).ToHaveTextAsync(InvalidCredentialsError);
+            await Expect(_loginPage.ErrorMessage).ToHaveTextAsync(ErrorMessages.Login.InvalidCredentials);
             await Expect(Page).ToHaveURLAsync(_loginPage.Url + "/");
         }
 
@@ -82,7 +77,7 @@ namespace SauceAppTests
         {
             await _loginPage.LoginAsync(TestSettings.LockedOutUsername, TestSettings.Password);
 
-            await Expect(_loginPage.ErrorMessage).ToHaveTextAsync(LockedOutError);
+            await Expect(_loginPage.ErrorMessage).ToHaveTextAsync(ErrorMessages.Login.LockedOut);
             await Expect(Page).ToHaveURLAsync(_loginPage.Url + "/");
         }
 
@@ -92,7 +87,7 @@ namespace SauceAppTests
         {
             await _loginPage.LoginAsync(string.Empty, TestSettings.Password);
 
-            await Expect(_loginPage.ErrorMessage).ToHaveTextAsync(UsernameRequiredError);
+            await Expect(_loginPage.ErrorMessage).ToHaveTextAsync(ErrorMessages.Login.UsernameRequired);
             await Expect(Page).ToHaveURLAsync(_loginPage.Url + "/");
         }
 
@@ -102,7 +97,7 @@ namespace SauceAppTests
         {
             await _loginPage.LoginAsync(TestSettings.StandardUsername, string.Empty);
 
-            await Expect(_loginPage.ErrorMessage).ToHaveTextAsync(PasswordRequiredError);
+            await Expect(_loginPage.ErrorMessage).ToHaveTextAsync(ErrorMessages.Login.PasswordRequired);
             await Expect(Page).ToHaveURLAsync(_loginPage.Url + "/");
         }
 
@@ -112,7 +107,7 @@ namespace SauceAppTests
         {
             await _loginPage.LoginAsync(string.Empty, string.Empty);
 
-            await Expect(_loginPage.ErrorMessage).ToHaveTextAsync(UsernameRequiredError);
+            await Expect(_loginPage.ErrorMessage).ToHaveTextAsync(ErrorMessages.Login.UsernameRequired);
             await Expect(Page).ToHaveURLAsync(_loginPage.Url + "/");
         }
 
@@ -140,11 +135,11 @@ namespace SauceAppTests
                     await Expect(_inventoryPage.PageTitle).ToHaveTextAsync("Products");
                     break;
                 case LoginCredentialSet.LockedOutUser:
-                    await Expect(_loginPage.ErrorMessage).ToHaveTextAsync(LockedOutError);
+                    await Expect(_loginPage.ErrorMessage).ToHaveTextAsync(ErrorMessages.Login.LockedOut);
                     await Expect(Page).ToHaveURLAsync(_loginPage.Url + "/");
                     break;
                 case LoginCredentialSet.StandardUserWithWrongPassword:
-                    await Expect(_loginPage.ErrorMessage).ToHaveTextAsync(InvalidCredentialsError);
+                    await Expect(_loginPage.ErrorMessage).ToHaveTextAsync(ErrorMessages.Login.InvalidCredentials);
                     await Expect(Page).ToHaveURLAsync(_loginPage.Url + "/");
                     break;
             }
@@ -158,8 +153,7 @@ namespace SauceAppTests
         [Description("TC-LOGOUT-001: Logged-in user can log out successfully")]
         public async Task Logout_FromInventoryPage_ReturnsToLoginPage()
         {
-            await _loginPage.LoginAsync(TestSettings.StandardUsername, TestSettings.Password);
-            await Expect(Page).ToHaveURLAsync(new Regex(_inventoryPage.UrlPattern));
+            await LoginAsStandardUserAsync(_loginPage, _inventoryPage);
 
             await _inventoryPage.LogoutAsync();
 
@@ -171,7 +165,7 @@ namespace SauceAppTests
             // Session is cleared: reloading the previous inventory URL no longer shows authenticated content.
             await Page.GotoAsync(InventoryUrl);
             await Expect(_inventoryPage.InventoryContainer).Not.ToBeVisibleAsync();
-            await Expect(_loginPage.ErrorMessage).ToHaveTextAsync(ProtectedPageError);
+            await Expect(_loginPage.ErrorMessage).ToHaveTextAsync(ErrorMessages.Login.ProtectedPage);
         }
 
         [Test]
@@ -180,8 +174,7 @@ namespace SauceAppTests
         [TestCase(PostLogoutNavigation.DirectUrl)]
         public async Task ProtectedPage_AfterLogout_IsNotAccessible(PostLogoutNavigation navigation)
         {
-            await _loginPage.LoginAsync(TestSettings.StandardUsername, TestSettings.Password);
-            await Expect(Page).ToHaveURLAsync(new Regex(_inventoryPage.UrlPattern));
+            await LoginAsStandardUserAsync(_loginPage, _inventoryPage);
 
             await _inventoryPage.LogoutAsync();
             await Expect(Page).ToHaveURLAsync(_loginPage.Url + "/");
@@ -201,7 +194,7 @@ namespace SauceAppTests
             await Expect(Page).ToHaveURLAsync(_loginPage.Url + "/");
             await Expect(_inventoryPage.InventoryContainer).Not.ToBeVisibleAsync();
             await Expect(_loginPage.LoginButton).ToBeVisibleAsync();
-            await Expect(_loginPage.ErrorMessage).ToHaveTextAsync(ProtectedPageError);
+            await Expect(_loginPage.ErrorMessage).ToHaveTextAsync(ErrorMessages.Login.ProtectedPage);
         }
     }
 }

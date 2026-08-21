@@ -1,5 +1,6 @@
 using Microsoft.Playwright;
 using Microsoft.Playwright.NUnit;
+using SauceAppTests.Pages;
 
 namespace SauceAppTests.Common
 {
@@ -13,6 +14,20 @@ namespace SauceAppTests.Common
     [Parallelizable(ParallelScope.Self)]
     public abstract class PlaywrightTestBase : PageTest
     {
+        /// <summary>
+        /// Submits a valid standard-user login and waits for the redirect to the inventory page.
+        /// Centralizes the "log in successfully" sequence repeated across fixtures (Authentication,
+        /// Checkout, NonFunctional) instead of duplicating LoginAsync + the post-login URL assertion
+        /// in every test. Callers are responsible for navigating to the login page first (via
+        /// <paramref name="loginPage"/>.GotoAsync()) — this only covers the actual login action, so it
+        /// isn't accidentally reused for negative-login-path tests.
+        /// </summary>
+        protected async Task LoginAsStandardUserAsync(LoginPage loginPage, InventoryPage inventoryPage)
+        {
+            await loginPage.LoginAsync(TestSettings.StandardUsername, TestSettings.Password);
+            await Expect(Page).ToHaveURLAsync(new Regex(inventoryPage.UrlPattern));
+        }
+
         [TearDown]
         public async Task CaptureScreenshotOnFailureAsync()
         {
