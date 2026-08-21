@@ -1,10 +1,14 @@
+using System.Globalization;
+using CsvHelper;
+using CsvHelper.Configuration;
+
 namespace SauceAppTests.Utilities
 {
     /// <summary>
-    /// Minimal CSV lookup reader for simple, comma-separated, no-quoting-required TestData files
-    /// (see SauceAppTests/TestData/*.csv). Rows are keyed by their first column so tests can look
-    /// up a named record (e.g. "Default" customer, "First"/"Second" product) instead of hardcoding
-    /// values inline.
+    /// CSV reader for TestData files (see SauceAppTests/TestData/*.csv), backed by CsvHelper.
+    /// Each file is parsed into a list of strongly-typed DTOs (<see cref="CustomerRecord"/>,
+    /// <see cref="ProductRecord"/>, or any caller-supplied type) rather than raw dictionaries, so
+    /// callers get compile-time-checked property access instead of magic string column lookups.
     /// </summary>
     public static class TestDataReader
     {
@@ -13,10 +17,37 @@ namespace SauceAppTests.Utilities
             Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
 
         /// <summary>
-        /// Reads <paramref name="fileName"/> from SauceAppTests/TestData/ and returns the row whose
-        /// first column equals <paramref name="key"/>, as a column-name -> value map (header-driven).
+        /// Returns every row in SauceAppTests/TestData/customers.csv as <see cref="CustomerRecord"/>s.
         /// </summary>
-        public static IReadOnlyDictionary<string, string> GetRow(string fileName, string key)
+        public static IReadOnlyList<CustomerRecord> GetCustomers() =>
+            ReadCsvToObject<CustomerRecord>("customers.csv");
+
+        /// <summary>
+        /// Returns the customer record whose Key column equals <paramref name="key"/> (e.g. "Default").
+        /// </summary>
+        public static CustomerRecord GetCustomer(string key) =>
+            GetCustomers().FirstOrDefault(c => c.Key == key)
+                ?? throw new KeyNotFoundException($"Key '{key}' not found in TestData file 'customers.csv'.");
+
+        /// <summary>
+        /// Returns every row in SauceAppTests/TestData/products.csv as <see cref="ProductRecord"/>s.
+        /// </summary>
+        public static IReadOnlyList<ProductRecord> GetProducts() =>
+            ReadCsvToObject<ProductRecord>("products.csv");
+
+        /// <summary>
+        /// Returns the product record whose Key column equals <paramref name="key"/> (e.g. "First").
+        /// </summary>
+        public static ProductRecord GetProduct(string key) =>
+            GetProducts().FirstOrDefault(p => p.Key == key)
+                ?? throw new KeyNotFoundException($"Key '{key}' not found in TestData file 'products.csv'.");
+
+        /// <summary>
+        /// Reads <paramref name="fileName"/> from SauceAppTests/TestData/ and maps each row onto
+        /// <typeparamref name="T"/> by header name (case-insensitive). Header/field-count mismatches
+        /// are tolerated so TestData files can gain columns without updating every DTO.
+        /// </summary>
+        public static IReadOnlyList<T> ReadCsvToObject<T>(string fileName)
         {
             var path = Path.Combine(TestDataDirectory, fileName);
             if (!File.Exists(path))
@@ -24,28 +55,14 @@ namespace SauceAppTests.Utilities
                 throw new FileNotFoundException($"TestData file not found: {path}");
             }
 
-            var lines = File.ReadAllLines(path).Where(l => !string.IsNullOrWhiteSpace(l)).ToArray();
-            if (lines.Length < 2)
+            var config = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
-                throw new InvalidOperationException($"TestData file '{fileName}' has no data rows.");
-            }
-
-            var headers = lines[0].Split(',');
-            foreach (var line in lines.Skip(1))
-            {
-                var values = line.Split(',');
-                if (values[0] == key)
-                {
-                    var row = new Dictionary<string, string>();
-                    for (var i = 0; i < headers.Length && i < values.Length; i++)
-                    {
-                        row[headers[i]] = values[i];
-                    }
-                    return row;
-                }
-            }
-
-            throw new KeyNotFoundException($"Key '{key}' not found in TestData file '{fileName}'.");
+                HeaderValidated = null,
+                MissingFieldFound = null
+            };
+            using var reader = new StreamReader(path);
+            using var csvReader = new CsvReader(reader, config);
+            return csvReader.GetRecords<T>().ToList();
         }
     }
 }

@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.4" />
+    <PackageReference Include="CsvHelper" Version="33.1.0" />
     <PackageReference Include="Deque.AxeCore.Playwright" Version="4.13.0" />
     <PackageReference Include="DotNetEnv" Version="3.2.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.0" />
